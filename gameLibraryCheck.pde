@@ -26,8 +26,8 @@ public void setup()
   ship.setDomain(0, height-ship.getHeight(), width, height, Sprite.HALT);
   
   controllIO = ControlIO.getInstance(this);
-  keyboard = controllIO.getDevice("Apple Internal Keyboard / Trackpad");
-  spaceBtn = keyboard.getButton(" ");   
+  keyboard = controllIO.getDevice("Keyboard");
+  spaceBtn = keyboard.getButton("Space");   
   leftArrow = keyboard.getButton("Left");   
   rightArrow = keyboard.getButton("Right");
   
