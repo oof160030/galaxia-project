@@ -7,7 +7,7 @@ import ddf.minim.*;
 Sprite ship, monster, monster1;
 StopWatch stopWatch = new StopWatch();
 Sprite [] grid;
-boolean right = true;
+int right = 1;
 
 ControlIO controllIO;
 ControlDevice keyboard;
@@ -35,7 +35,7 @@ public void setup()
       grid[index] = new Sprite(this, "monster.png", 1, 1, 40);
       grid[index].setXY(width - (75+(x*50)), height - (300+(y*50)));
       grid[index].setScale(0.2);
-      grid[index].setDomain(100, height-grid[index].getHeight(), width - 100, height, Sprite.REBOUND);
+      //grid[index].setDomain(100, height-grid[index].getHeight(), width - 100, height, Sprite.REBOUND);
       index++;
     }
   }
@@ -66,20 +66,20 @@ void pre()
   }
   
   for (int i = 0; i<=49; i++){
-    if(grid[i].getX() > width-150){
-      right = false;
+    if(grid[i].getX() > width-100 && right == 1){
+      right = 0;
     }
-    else if(grid[i].getX() < 150){
-      right = true;
+    else if(grid[i].getX() < 100 && right == 0){
+      right = 1;
     }
   }
   
   for (int i = 0; i<=49; i++){
-    if(right){
-      grid[i].setSpeed(100.0);
+    if(right == 0){
+      grid[i].setX(grid[i].getX()-1);
     }
-    else if(!right){
-      grid[i].setSpeed(-100.0);
+    if(right == 1){
+      grid[i].setX(grid[i].getX()+1);
     }
   }
   S4P.updateSprites(stopWatch.getElapsedTime());
