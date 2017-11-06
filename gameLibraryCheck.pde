@@ -40,8 +40,8 @@ public void setup()
     }
   }
   controllIO = ControlIO.getInstance(this);
-  keyboard = controllIO.getDevice("Apple Internal Keyboard / Trackpad");
-  spaceBtn = keyboard.getButton(" ");   
+  keyboard = controllIO.getDevice("Keyboard");
+  spaceBtn = keyboard.getButton("Space");   
   leftArrow = keyboard.getButton("Left");   
   rightArrow = keyboard.getButton("Right");
   
