@@ -24,7 +24,7 @@ public void setup()
   ship = new Sprite(this, "ship.png", 1, 1, 50);
   ship.setXY(width/2, height - 30);
   ship.setVelXY(0.0f, 0);
-  ship.setScale(.045);
+  ship.setScale(.75);
   ship.setDomain(0, height-ship.getHeight(), width, height, Sprite.HALT);
 
   grid = new Sprite[50];
