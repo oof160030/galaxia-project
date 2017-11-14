@@ -39,7 +39,7 @@ public void setup()
   grid = new Sprite[50];
   buildMonster();
 
-  //Sets up the controls (Mac Version)
+  //Sets up the controls (Win Version)
   controllIO = ControlIO.getInstance(this);
   keyboard = controllIO.getDevice("Keyboard");
   spaceBtn = keyboard.getButton("Space");   
@@ -164,24 +164,21 @@ void monsterHit()
 }
 
 //Checks if all monsters are dead
-void checkDead()
-{
-  boolean alive = false;  
+int checkDead()
+{  
   int index = 0;
   for (int y=1; y<=5; y++)
     {
       for (int x=1; x<=10; x++){
         if (!grid[index].isDead())
         {
-          alive = true;
+          return index;
         }
         index++;
       }
     }
-  if (alive == false)
-  {
-    resetMonsters();
-  }
+   resetMonsters();
+   return -1;
 }
 
 //Reset monsters if all dead
