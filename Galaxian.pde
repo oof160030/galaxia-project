@@ -24,12 +24,65 @@ ControlButton spaceBtn, leftArrow, rightArrow, downArrow;
 Minim minimplay;
 AudioSample popPlayer;
 
+//Initializes game objects and sounds before game starts
 public void setup()
 {
   //sets size of the screen : X = 700, Y = 600
   size(700, 600);
   frameRate(60);
 
+  //Creates the ship and it's rocket
+  buildShip();
+  buildRocket();
+
+  // Creates an array of monsters (monster grid)
+  grid = new Sprite[50];
+  buildMonster();
+
+  //Sets up the controls (Mac Version)
+  controllIO = ControlIO.getInstance(this);
+  keyboard = controllIO.getDevice("Apple Internal Keyboard / Trackpad");
+  spaceBtn = keyboard.getButton(" ");   
+  leftArrow = keyboard.getButton("Left");   
+  rightArrow = keyboard.getButton("Right");
+  
+  //Loads in sound object for firing gun
+  minimplay = new Minim(this); 
+  popPlayer = minimplay.loadSample("pop.wav", 1024);
+
+  //Registers pre method used below
+  registerMethod("pre", this);
+}
+
+//Repeatedly updates attributes of game objects based on input and logic checks
+void pre()
+{
+  // Reads input and controls ship
+  checkKeys();
+  
+  //Checks position of and moves monsters
+  moveMonster();
+  
+  //Check if all the monsters are dead
+  checkDead();
+  
+  
+  //If rocket flies offscreen, rocket dies
+  if (rocket.getY() < 0)
+    stopRocket();
+  
+  //Checks if any monster has been hit by a rocket
+  monsterHit();
+  
+  //Updates the positions and attributes of sprites 
+  S4P.updateSprites(stopWatch.getElapsedTime());
+}
+
+//FUNCTIONS FOR BUILDING OBJECTS-------------------------------
+
+//Build Spaceship
+void buildShip()
+{
   // Creates the ship sprite on the screen (stationary)
   ship = new Sprite(this, "ship.png", 1, 1, 50);
   ship.setXY(width/2, height - 30);
@@ -38,73 +91,15 @@ public void setup()
   
   // Domain keeps the ship within the screen 
   ship.setDomain(0, height-ship.getHeight(), width, height, Sprite.HALT);
-
-  grid = new Sprite[50];
-  
-  // Creates an array of monsters (monster grid)
-  buildMonster();
-  buildRocket();
-  controllIO = ControlIO.getInstance(this);
-  keyboard = controllIO.getDevice("Keyboard");
-  spaceBtn = keyboard.getButton("Space");   
-  leftArrow = keyboard.getButton("Left");   
-  rightArrow = keyboard.getButton("Right");
-  
-  //"pop" sound made when called
-  minimplay = new Minim(this); 
-  popPlayer = minimplay.loadSample("pop.wav", 1024);
-
-  registerMethod("pre", this);
 }
 
-// Function defining how the ship will move
-void pre()
+//Build Rocket
+void buildRocket()
 {
-    if (focused) {
-      if (leftArrow.pressed()) {
-        ship.setX(ship.getX()-5);
-      }
-      if (rightArrow.pressed()) {
-        ship.setX(ship.getX()+5);
-      }
-      if (spaceBtn.pressed()) {
-        popPlayer.trigger();
-        if (rocket.isDead()){
-          fireRocket();
-        }
-      }
-  }
-  // Checks the postion of the grid
-  for (int i = 0; i<=49; i++){
-    if(grid[i].getX() > width-100 && right == 1){
-      right = 0;
-    }
-    else if(grid[i].getX() < 100 && right == 0){
-      right = 1;
-    }
-  }
-  // Moves the grid in the reverse direction if the grid reaches 2/3rds of the screen
-  for (int i = 0; i<=49; i++){
-    if(right == 0){
-      grid[i].setX(grid[i].getX()-1);
-    }
-    if(right == 1){
-      grid[i].setX(grid[i].getX()+1);
-    }
-  }
-  //Check if monsters are dead
-  checkDead();
-  
-  
-  //If bullet flies offscreen
-  if (rocket.getY() < 0)
-  {
-    stopRocket();
-  }
-  
-  monsterHit();
-  
-  S4P.updateSprites(stopWatch.getElapsedTime());
+  rocket = new Sprite(this, "rocket.png", 5);
+  rocket.setDead(true);
+  rocket.setScale(0.5);
+  rocket.setXY(0,0);
 }
 
 //Build Monster funciton
@@ -123,7 +118,32 @@ void buildMonster()
   }
 }
 
-//Check Monster Collision
+//FUNCTIONS FOR MONSTERS----------------------------------
+
+//Checks position of monsters, moves them all accordinlgy 
+void moveMonster()
+{
+  // Checks the postion of monsters on grid, sets direction they should travel
+  for (int i = 0; i<=49; i++){
+    if(grid[i].getX() > width-100 && right == 1){
+      right = 0;
+    }
+    else if(grid[i].getX() < 100 && right == 0){
+      right = 1;
+    }
+  }
+  // Moves the monsters left or right depending on the direction set above.
+  for (int i = 0; i<=49; i++){
+    if(right == 0){
+      grid[i].setX(grid[i].getX()-1);
+    }
+    if(right == 1){
+      grid[i].setX(grid[i].getX()+1);
+    }
+  }
+}
+
+//Checks If Monster Hit By Rocket
 void monsterHit()
 {
   if (!rocket.isDead())
@@ -143,7 +163,7 @@ void monsterHit()
   }
 }
 
-//Check if all dead
+//Checks if all monsters are dead
 void checkDead()
 {
   boolean alive = false;  
@@ -164,7 +184,7 @@ void checkDead()
   }
 }
 
-//Reset Monsters
+//Reset monsters if all dead
 void resetMonsters()
 {
   int index = 0;
@@ -177,14 +197,24 @@ void resetMonsters()
     }
 }
 
-
-//Build Rocket
-void buildRocket()
+//FUNCTIONS FOR PLAYER--------------------------------
+//Reads input for ship
+void checkKeys()
 {
-  rocket = new Sprite(this, "rocket.png", 5);
-  rocket.setDead(true);
-  rocket.setScale(0.5);
-  rocket.setXY(0,0);
+  if (focused) {
+      if (leftArrow.pressed()) {
+        ship.setX(ship.getX()-5);
+      }
+      if (rightArrow.pressed()) {
+        ship.setX(ship.getX()+5);
+      }
+      if (spaceBtn.pressed()) {
+        if (rocket.isDead()){
+          popPlayer.trigger();
+          fireRocket();
+        }
+     }
+  }
 }
 
 //Fire Rocket
@@ -195,13 +225,15 @@ void fireRocket()
   rocket.setVelY(-500);
 }
 
-//Stop Rocket
+//Stops and kills Rocket when called
 void stopRocket()
 {
   rocket.setVelY(0);
   rocket.setDead(true);
 }
 
+//GENERAL USE FUNCTIONS----------------------------------------
+//Draws sprites based on current values
 void draw() 
 {
   background(0);
