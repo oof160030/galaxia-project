@@ -56,14 +56,6 @@ public void setup()
   leftArrow = keyboard.getButton("Left");   
   rightArrow = keyboard.getButton("Right");
   
-  /*Sets up the controls (Mac Version)
-  controllIO = ControlIO.getInstance(this);
-  keyboard = controllIO.getDevice("Apple Internal Keyboard / Trackpad");
-  spaceBtn = keyboard.getButton(" ");   
-  leftArrow = keyboard.getButton("Left");   
-  rightArrow = keyboard.getButton("Right");
-  */
-  
   //Loads in sound object for firing gun
   minimplay = new Minim(this); 
   popPlayer = minimplay.loadSample("pop.wav", 1024);
@@ -93,6 +85,7 @@ void pre()
   
   //Checks if any monster has been hit by a rocket
   monsterHit();
+  fallingHit();
   
   //Updates timers
   updateTimers();
@@ -131,7 +124,7 @@ void buildShip()
   ship = new Sprite(this, "ship.png", 1, 1, 50);
   ship.setXY(width/2, height - 30);
   ship.setVelXY(0.0f, 0);
-  ship.setScale(.75);
+  ship.setScale(0.75);
   
   // Domain keeps the ship within the screen 
   ship.setDomain(0, height-ship.getHeight(), width, height, Sprite.HALT);
@@ -153,7 +146,7 @@ void buildMonster()
   for (int y=1; y<=5; y++)
   {
     for (int x=1; x<=10; x++){
-      grid[index] = new Sprite(this, "monster.png", 1, 1, 40);
+      grid[index] = new Sprite(this, "monsterx.png", 1, 1, 40);
       grid[index].setXY(width - (75+(x*50)), height - (300+(y*50)));
       grid[index].setScale(0.2);
       //grid[index].setDomain(100, height-grid[index].getHeight(), width - 100, height, Sprite.REBOUND);
@@ -172,7 +165,9 @@ void buildFalling()
   falling.setDomain(0, 0, width, height+100, Sprite.REBOUND);
 }
 
-//FUNCTIONS FOR MONSTERS----------------------------------
+//FUNCTIONS FOR MONSTERS===================================
+
+//Normal Monsters------------------------------------------
 
 //Checks position of monsters, moves them all accordinlgy 
 void moveMonster()
@@ -247,6 +242,8 @@ void resetMonsters()
     }
 }
 
+//Falling Monster------------------------------------------
+
 //Randomly selects a living monster
 void chooseFalling()
 {
@@ -276,18 +273,18 @@ void setFalling(int chosen, int col)
 {
   falling.setDead(false);
   falling.setXY(grid[chosen].getX(),grid[chosen].getY());
-  fmRight = random(4.7, 5.5);
-  fmLeft = random(4.0, 4.7);
+  fmRight = random(0.78, 1.18);
+  fmLeft = random(1.96, 2.36);
   if (col >= 6)
-    falling.setSpeed(-250,fmRight);
+    falling.setSpeed(125,fmRight);
   else
-     falling.setSpeed(-250, fmLeft);
+     falling.setSpeed(125, fmLeft);
 }
 
 //Changes falling monster speed
 void changeFalling()
 {
-  double randomSpeed = random(-250, -150);
+  double randomSpeed = random(125,200);
   if (!falling.isDead() && random(25) < 1)
   {
     
@@ -296,6 +293,17 @@ void changeFalling()
       falling.setSpeed(randomSpeed, fmLeft);
     else
       falling.setSpeed(randomSpeed, fmRight);
+  }
+}
+
+//Checks If Falling Monster Hit By Rocket
+void fallingHit()
+{
+  if (!rocket.isDead() && !falling.isDead() && falling.bb_collision(rocket))
+  {
+      falling.setDead(true);
+      rocket.setDead(true);
+      timer1On = true;
   }
 }
 
