@@ -24,7 +24,7 @@ double fmRight = 0;
 double fmLeft = 0;
 double fmSpeed = 0;
 
-//Game over
+//Data used to crate "Game Over" Screen
 boolean gameOver = false;
 PFont myFont;
 
@@ -39,6 +39,7 @@ AudioSample popPlayer;
 AudioSample esplosionPlayer;
 AudioSample esplosion2Player;
 
+//Tracks the player's score
 int score = 0;
 
 //Initializes game objects and sounds before game starts
@@ -126,8 +127,6 @@ void pre()
   //Collision of falling monster with ship
   Collision();
   
-  drawGameOver();
-  
   //Updates the positions and attributes of sprites 
   S4P.updateSprites(stopWatch.getElapsedTime());
 }
@@ -163,7 +162,7 @@ void buildMonster()
   for (int y=1; y<=5; y++)
   {
     for (int x=1; x<=10; x++){
-      grid[index] = new Sprite(this, "monsterx.png", 1, 1, 40);
+      grid[index] = new Sprite(this, "monster.png", 1, 1, 40);
       grid[index].setXY(width - (75+(x*50)), height - (300+(y*50)));
       grid[index].setScale(0.2);
       //grid[index].setDomain(100, height-grid[index].getHeight(), width - 100, height, Sprite.REBOUND);
@@ -342,16 +341,7 @@ void Collision()
   }
 }
 
-void drawGameOver()
-{
-  if(gameOver == true)
-  {
-    myFont = createFont("Comic Sans MS Bold", 64);
-    textFont(myFont);
-    textAlign(CENTER, CENTER);
-    text("Game Over", width/2, height/2);
-  }
-}
+
 
 //FUNCTIONS FOR PLAYER--------------------------------
 //Reads input for ship
@@ -388,7 +378,7 @@ void stopRocket()
   rocket.setDead(true);
 }
 
-//GENERAL USE FUNCTIONS----------------------------------------
+//GENERAL USE FUNCTIONS===============================
 //Updates all running timers
 void updateTimers()
 {
@@ -396,7 +386,30 @@ void updateTimers()
    timer1++;
 }
 
-//Draw score
+
+//DRAWING FUNCTIONS--------------------------------------------
+//Draws sprites based on current values
+void draw() 
+{
+  background(0);
+  S4P.drawSprites();
+  drawscore();
+  drawGameOver();
+}
+
+//Draws Game Over Screen
+void drawGameOver()
+{
+  if(gameOver == true)
+  {
+    myFont = createFont("Comic Sans MS Bold", 64);
+    textFont(myFont);
+    textAlign(CENTER, CENTER);
+    text("Game Over", width/2, height/2);
+  }
+}
+
+//Draws Score (both during game and game over)
 void drawscore()
 {
   if (ship.isDead())
@@ -411,14 +424,5 @@ void drawscore()
     String msg = "Score: " + score;
     text(msg,10,30);
   }
-}
-
-//Draws sprites based on current values
-void draw() 
-{
-  background(0);
-  S4P.drawSprites();
-  drawscore();
-  drawGameOver();
 }
  
